@@ -1,0 +1,54 @@
+PRD
+
+Slideshow/Album creator
+
+P1 
+
+- There's a list of images - ability to view them as a slideshow
+
+P2 
+
+- Load the list of images from a repository of images
+- User can search for the images he wants by giving in some keyword
+- User can pick the ones he likes and form a slideshow
+
+P3
+
+- Animate Slideshow transition between image switches
+- Auto complete the search box
+
+P4
+
+- Feature to remove images selectively from the ablum
+- Drag and drop images into album
+
+
+
+
+Step 1
+
+1. Set of images
+2. Play Button
+3. Slideshow plays
+
+Step 2
+
+1. Images loaded from flickr interestingness
+2. Click on image shows preview of that image. 
+
+Step 3
+
+1. User can search the images by search terms.
+
+Step 4
+
+1. User can create his own album with chosen photos and play it.
+
+Step 5
+
+1. Give autocomplete suggestions for search terms - based on tags. 
+
+Step 6
+
+1. Animation - get rid of timer - make use of anim end event
+2. Pause feature

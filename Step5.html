@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Y! HackU IITM - Slideshow</title>
+		<meta charset="utf-8">
+    	<script src="http://yui.yahooapis.com/3.8.1/build/yui/yui-min.js"></script>
+	</head>
+
+	<!-- All the CSS styling -->
+	<style>
+body {
+	font-family:"Verdana", verdana, sans-serif;
+}
+
+#image-container {
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	height: 420px;
+	width: 275px;
+	padding:0px;
+	padding-left:4px;
+	padding-top:4px;
+}
+#image-container ul, #album ul {
+	padding:10px;
+	padding-top: 5px;
+	margin-top: 0px;
+}
+#album ul {
+	padding-top:2px;
+}
+#image-container ul li, #album ul li {
+	float:left;
+	display:inline;
+	margin:5px;
+	margin-left:0px;
+	width:80px;
+	height:80px;
+	padding:0px;
+}
+
+#image-container ul li:hover {
+	
+}
+
+#image-container ul li img, #album ul li img {
+	border: 2px solid #aaa;
+	border-radius: 5px;
+}
+
+#play-btn, #search-btn {
+	border: 1px solid #888;
+	color: #fff;
+	background-color: #444;
+	padding : 5px;
+	text-align: center;
+	cursor: pointer;
+	border-radius: 10px;
+}
+#play-btn {
+	height:20px;
+	width: 140px;
+	margin-left: auto;
+	margin-right:auto;
+	margin-top: 40px;
+}
+#search-btn {
+	height:10px;
+	font-size:.5em;
+	width: 70px;
+	border-radius: 5px;
+	float:right;
+}
+ #right-pane {
+	float:right;
+}
+#zoom-wrapper {
+	width: 650px;
+}
+#zoom {
+	text-align: center;
+}
+#search-box {
+	padding: 3px;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+}
+#album {
+	width:900px;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	height:105px;
+	position:absolute;
+	background-color:white;
+	bottom:0;
+	overflow-y:hidden;
+	overflow-x:auto;
+}
+#album-strip {
+	width:2000px;
+}
+	</style>
+
+
+	<body>
+
+		<!-- All the Markup -->
+	  <div id="right-pane">
+		<div id="search-box" class="yui3-skin-sam">
+			<input type="text" id="search" size="30" />
+			<div id="search-btn">Search</div>
+		</div>
+		<div id="image-container">
+			<ul>
+				<!--
+				<li><img src="http://farm9.staticflickr.com/8090/8546118764_bb845e3a43_s.jpg"> </li>
+				<li><img src="http://farm9.staticflickr.com/8381/8546525384_45d17d7b59_s.jpg"> </li>
+				-->
+			</ul>
+		</div>
+
+		<div id="play-btn">Play</div>
+	  </div>
+	  <div id="zoom-wrapper">
+		<div id="zoom"> </div>
+	  </div>
+
+	  <div id="album">
+	  	<div id="album-strip">
+	  	<ul>	</ul>
+	  </div>
+	  </div>
+
+
+
+		<!-- All the YUI Js -->
+		<script>
+
+// Play slideshow functionality
+
+YUI().use('node', 'event', 'gallery-timer',  function(Y) {
+
+	var playBtn = Y.one('#play-btn');
+	playBtn.on('click', function(e) {
+		var images = Y.all('#album li img');
+		
+		console.log(images.size());
+		var count=0;
+		var t = new Y.Timer({length:2000,repeatCount:images.size(),callback:function() {
+				var image = images.item(count);
+				var imageUrl = image.getAttribute('src');
+				Y.log(imageUrl);
+				imageUrl = imageUrl.replace('_s.jpg', '_z.jpg');
+				Y.log(imageUrl);
+				var zoomPane = Y.one('#zoom');
+				zoomPane.setHTML('<img src="' + imageUrl + '" />');
+				count++;
+				
+		}});
+        
+ 
+    	t.on('timer:start',function(e){Y.log('timer started!!!','warn')});
+    	t.on('timer:stop',function(e){Y.log('timer stopped!!!','warn')});
+ 
+    	t.start();
+	});
+
+});
+
+
+
+// Image from flickr interesting
+
+YUI().use('node', 'yql', function(Y) {
+
+	var setZoomImage = function(smallImage) {
+		imageUrl = smallImage.replace('_s.jpg', '_z.jpg');
+		Y.log(imageUrl);
+		var zoomPane = Y.one('#zoom');
+		zoomPane.setHTML('<img src="' + imageUrl + '" />');
+	}
+
+	var addToAlbum = function(node) {
+		Y.log('add to album called');
+		var li = Y.Node.create('<li></li>');
+		li.appendChild(node.cloneNode());
+		Y.one('#album ul').appendChild(li);
+	}
+
+	var imageClick = function(e) {
+		setZoomImage(e.target._node.src);
+		addToAlbum(e.target._node);
+	}
+
+	var albumImageClick = function(e) {
+		setZoomImage(e.target._node.src);
+	}
+
+	// listener
+	Y.one('#image-container ul').delegate('click', imageClick, 'li');
+	Y.one('#album ul').delegate('click', albumImageClick, 'li');
+
+	var populateWithYqlQuery = function (query) {
+
+		// cleanup the image container
+		var imageContainer = Y.one('#image-container ul');
+		imageContainer.set('innerHTML', '');
+
+		Y.YQL(query, function(r) {
+			var images = r.query.results.photo;
+
+			var isFirst = true;
+			
+			images.forEach(function(image) {
+
+				Y.log(image);
+				// http://farm9.staticflickr.com/8090/8546118764_bb845e3a43_s.jpg"
+				var imageUrl = 'http://farm' + image.farm + '.staticflickr.com/' + image.server + '/' + image.id + '_' + image.secret + '_s.jpg';
+				Y.log(imageUrl);
+
+				var li = Y.Node.create('<li></li>');
+
+	        	li.set('innerHTML', '<img src="' + imageUrl +'"" />' );
+
+	        	var imageContainer = Y.one('#image-container ul');
+	        	imageContainer.appendChild(li);
+
+	        	if(isFirst) {
+	        		setZoomImage(imageUrl);
+	        	}
+
+			});
+		});
+	}
+
+
+	
+	var query = 'select * from flickr.photos.interestingness(20) where api_key="1b4e3cc0627856694676c071cb357876" limit 12';
+	Y.log(query);
+	populateWithYqlQuery(query);
+
+	// Search Functionality
+	Y.one('#search-btn').on('click', function(e) { 
+		var searchTerm = Y.one('#search').get('value');
+		Y.log(searchTerm);
+
+		var searchQuery = 'select * from flickr.photos.search where text="' + searchTerm + '" and api_key="1b4e3cc0627856694676c071cb357876" limit 12';
+		populateWithYqlQuery(searchQuery);
+	});
+
+});
+
+	//-----------------------
+	// Step 5 - Autocomplete
+	// -----------------------
+
+
+YUI().use('autocomplete', 'autocomplete-highlighters', function (Y) {
+  Y.one('#search').plug(Y.Plugin.AutoComplete, {
+    resultHighlighter: 'phraseMatch',
+    source: 'select * from search.suggest where query="{query}"',
+    yqlEnv: 'http://pieisgood.org/yql/tables.env'
+  });
+});
+
+
+// Autocomplete 
+
+/*
+
+YUI().use('autocomplete', 'autocomplete-filters', 'autocomplete-highlighters', 'yql' , function (Y) {
+
+  var tags = [];
+  var query = 'select * from html where url=\'http://www.flickr.com/photos/tags/\' and xpath=\'//*[@id="TagCloud"]//a\'';
+  Y.YQL(query, function(r) {
+  	r.query.results.a.forEach(function(link) {
+  		tags.push(link.content);
+  	});
+  	console.log(tags);
+
+  	 var inputNode = Y.one('#search');
+
+  inputNode.plug(Y.Plugin.AutoComplete, {
+    allowTrailingDelimiter: true,
+    minQueryLength: 0,
+    queryDelay: 0,
+    queryDelimiter: ',',
+    source: tags,
+    resultHighlighter: 'startsWith',
+
+    resultFilters: ['startsWith', function (query, results) {
+
+      var selected = inputNode.get('value').split(/\s,\s/);
+
+
+      selected = Y.Array.hash(selected);
+
+      return Y.Array.filter(results, function (result) {
+        return !selected.hasOwnProperty(result.text);
+      });
+    }]
+  });
+
+
+  inputNode.on('focus', function () {
+    inputNode.ac.sendRequest('');
+  });
+
+  
+  inputNode.ac.after('select', function () {
+    setTimeout(function () {
+      inputNode.ac.sendRequest('');
+      inputNode.ac.show();
+    }, 1);
+  });
+
+
+
+
+  });
+});
+
+*/
+		</script>
+
+	</body>
+
+
+</html>
