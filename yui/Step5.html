@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Y! HackU IITM - Slideshow</title>
+		<title>Y! HackU IITD - Slideshow</title>
 		<meta charset="utf-8">
     	<script src="http://yui.yahooapis.com/3.8.1/build/yui/yui-min.js"></script>
 	</head>
@@ -235,7 +235,7 @@ YUI().use('node', 'yql', function(Y) {
 
 
 	
-	var query = 'select * from flickr.photos.interestingness(20) where api_key="1b4e3cc0627856694676c071cb357876" limit 12';
+	var query = 'select * from flickr.photos.interestingness(20) where api_key="c6fdee30c93661cbd21d6b588341eb75" limit 12';
 	Y.log(query);
 	populateWithYqlQuery(query);
 
@@ -244,7 +244,7 @@ YUI().use('node', 'yql', function(Y) {
 		var searchTerm = Y.one('#search').get('value');
 		Y.log(searchTerm);
 
-		var searchQuery = 'select * from flickr.photos.search where text="' + searchTerm + '" and api_key="1b4e3cc0627856694676c071cb357876" limit 12';
+		var searchQuery = 'select * from flickr.photos.search where text="' + searchTerm + '" and api_key="c6fdee30c93661cbd21d6b588341eb75" limit 12';
 		populateWithYqlQuery(searchQuery);
 	});
 
